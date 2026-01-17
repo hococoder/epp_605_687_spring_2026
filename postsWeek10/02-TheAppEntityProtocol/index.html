@@ -1,0 +1,100 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="og:site_name" content="Mobile Application Development for the iOS Platform"/><link rel="canonical" href="https://hococoder.com/posts/Week10/02-TheAppEntityProtocol"/><meta name="twitter:url" content="https://hococoder.com/posts/Week10/02-TheAppEntityProtocol"/><meta name="og:url" content="https://hococoder.com/posts/Week10/02-TheAppEntityProtocol"/><title>Week 10 - The App Entity Protocol | Mobile Application Development for the iOS Platform</title><meta name="twitter:title" content="Week 10 - The App Entity Protocol | Mobile Application Development for the iOS Platform"/><meta name="og:title" content="Week 10 - The App Entity Protocol | Mobile Application Development for the iOS Platform"/><meta name="description" content="Engineering Program for Professionals - 605.687 - 2025-2026 Academic Year"/><meta name="twitter:description" content="Engineering Program for Professionals - 605.687 - 2025-2026 Academic Year"/><meta name="og:description" content="Engineering Program for Professionals - 605.687 - 2025-2026 Academic Year"/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="../../../styles.css" type="text/css"/><script src="../../../../jquery-3.7.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/favicon.png" type="image/png"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Mobile Application Development for the iOS Platform"/></head><body><div class="layout"><div class="header"><div class="headerLayout"><div class="title">Mobile Application Development for the iOS Platform</div><div class="subtitle">Engineering Program for Professionals - 605.687 - 2025-2026 Academic Year</div><div class="weeklayout"><a class="grow1" href="/epp_605_687_spring_2026/posts/Intro/About Me">About Me</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Intro/Example App">Example App</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week00/00-Week00Overview">Week 0</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week01/00-Week01Overview">Week 1</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week02/00-Week02Overview">Week 2</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week03/00-Week03Overview">Week 3</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week04/00-Week04Overview">Week 4</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week05/00-Week05Overview">Week 5</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week06/00-Week06Overview">Week 6</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week07/00-Week07Overview">Week 7</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week08/00-Week08Overview">Week 8</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week09/00-Week09Overview">Week 9</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week10/00-Week10Overview">Week 10</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week11/00-Week11Overview">Week 11</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week12/00-Week12Overview">Week 12</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week13/00-Week13Overview">Week 13</a></div></div></div><div class="wrapper"><h1>Week 10 - The App Entity Protocol</h1><p style="float: left">Previous:  <A HREF="../../Week10/01-IntroductionToAppIntents/index.html">Introduction to App Intents</A></p><p style="float: right">Next:  <A HREF="../../Week10/03-TheAppIntentProtocol/index.html">The App Intent Protocol</A></p><BR/><BR/><div id="floater">
+<h3><u>Page Contents</u></h3>
+<ul><li><a href="#overview">Overview</a></li></ul></div><a name="overview"></a>
+<h2>Overview</h2><p>App Intents are like sentences. Verbs, or intents, act upon nouns, known as entities. First, let's take a look at entities.</p><p>You need to adopt two primary interfaces to get your app ready for App Intents. First, <code>AppEntity</code> is a protocol that exposes a custom object in your app to system experiences such as Shortcuts. This is the “noun” in the App Intents sentence structure. For example, if you wanted to define an entity for a Lesson data object, which represents a class lesson, you might start with:</p><pre><code><span class="keyword">import</span> AppIntents
+<span class="keyword">import</span> Foundation
+
+<span class="comment">//the basic lesson type</span>
+<span class="keyword">struct</span> Lesson: <span class="type">Identifiable</span>, <span class="type">Hashable</span>, <span class="type">Sendable</span> {
+  <span class="keyword">var</span> name: <span class="type">String</span>
+  <span class="keyword">var</span> id: <span class="type">Int</span>
+}
+
+<span class="comment">//the AppEntity representing the Lesson</span>
+<span class="keyword">struct</span> LessonEntity: <span class="type">AppEntity</span>, <span class="type">IndexedEntity</span> {
+
+  <span class="keyword">let</span> id: <span class="type">Lesson</span>.<span class="type">ID</span>
+
+  <span class="keyword">static var</span> defaultQuery = <span class="type">LessonEntityQuery</span>()
+
+  <span class="keyword">@Property</span>(title: <span class="string">"Name of 605.687 Lesson"</span>)
+  <span class="keyword">var</span> name: <span class="type">String</span>
+
+  <span class="comment">/// A description of the lesson</span>
+  <span class="keyword">@Property</span>(title: <span class="string">"Lesson Description"</span>)
+  <span class="keyword">var</span> lessonDescription: <span class="type">String</span>
+
+  <span class="keyword">init</span>(lesson: <span class="type">Lesson</span>) {
+    <span class="keyword">self</span>.<span class="property">id</span> = lesson.<span class="property">id</span>
+    <span class="keyword">self</span>.<span class="property">name</span> = lesson.<span class="property">name</span>
+  }
+
+  <span class="keyword">var</span> displayRepresentation: <span class="type">DisplayRepresentation</span> {
+    <span class="type">DisplayRepresentation</span>(
+      title: <span class="string">"</span>\(name)<span class="string">"</span>
+    )
+  }
+
+  <span class="keyword">static var</span> typeDisplayRepresentation: <span class="type">TypeDisplayRepresentation</span> {
+    <span class="type">TypeDisplayRepresentation</span>(
+      name: <span class="type">LocalizedStringResource</span>(<span class="string">"Lesson"</span>, table: <span class="string">"AppIntents"</span>),
+      numericFormat: <span class="type">LocalizedStringResource</span>(<span class="string">"</span>\(placeholder: .<span class="dotAccess">int</span>) <span class="string">lessons"</span>, table: <span class="string">"AppIntents"</span>)
+    )
+  }
+}
+</code></pre><p>Here, instead of adopting <code>AppEntity</code> directly on the <code>Lesson</code> object of the data model, you create a separate struct called <code>LessonEntity</code>. This lets you ignore certain parts of the data model object that aren’t applicable when used with App Intents, if you wish.</p><p>The <code>@Property</code> property wrapper exposes this property to the App Intents system so you can use it with an associated intent.</p><p>The <code>displayRepresentation</code> property contains information on how to display the entity to people. Here, it uses the name, but it could include descriptions or images.</p><p>The <code>typeDisplayRepresentation</code> property is a localized name representing the entity as a concept people are familiar with in the app. Here, the lookup may return something more verbose, such as “A particular lesson video”, instead of just “Lesson”.</p><p>There is an additional property, <code>defaultQuery</code>, that helps the system search for the entity. That looks like this:</p><pre><code><span class="keyword">import</span> Foundation
+<span class="keyword">import</span> AppIntents
+
+<span class="keyword">struct</span> LessonEntityQuery: <span class="type">EntityQuery</span> {
+
+  <span class="keyword">@Dependency var</span> lessonManager: <span class="type">LessonDataManager</span>
+
+  <span class="keyword">func</span> entities(for identifiers: [<span class="type">LessonEntity</span>.<span class="type">ID</span>]) <span class="keyword">async throws</span> -&gt; [<span class="type">LessonEntity</span>] {
+    <span class="keyword">return</span> lessonManager.<span class="call">lessons</span>(with: identifiers)
+      .<span class="call">map</span> { <span class="type">LessonEntity</span>(lesson: $0) }
+  }
+
+  <span class="keyword">func</span> entities(matching string: <span class="type">String</span>) <span class="keyword">async throws</span> -&gt; [<span class="type">LessonEntity</span>] {
+    <span class="keyword">return</span> lessonManager
+      .<span class="call">lessons</span> { lesson <span class="keyword">in</span>
+        lesson.<span class="property">name</span>.<span class="call">localizedCaseInsensitiveContains</span>(string)
+      }
+      .<span class="call">map</span> { <span class="type">LessonEntity</span>(lesson: $0) }
+  }
+}
+</code></pre><p>This has a few methods to help return an array of <code>LessonEntity</code> objects for either <code>LessonEntity</code> IDs, or some <code>string</code>, which could be, for example, the name of the lesson. The function using IDs is required, but you can add others like the string search.</p><p>But <em>this</em> also has a very explicit dependent property, as denoted by the <code>@Dependency</code> property wrapper, the <code>LessonDataManager</code> object. This is basically an object that holds your model objects, and I've set mine up like this (these are all found in the EP Example App for this week):</p><pre><code><span class="keyword">import</span> Foundation
+<span class="keyword">import</span> Observation
+
+<span class="keyword">@Observable
+class</span> LessonDataManager: <span class="keyword">@unchecked</span> <span class="type">Sendable</span> {
+  <span class="keyword">static let</span> shared = <span class="type">LessonDataManager</span>()
+
+  <span class="comment">/// An array of all the lessons in the app.</span>
+  <span class="keyword">let</span> lessons: [<span class="type">Lesson</span>]
+
+  <span class="keyword">private init</span>() {
+
+    lessons = [<span class="type">Lesson</span>(name: <span class="string">"Week 9"</span>, id: <span class="number">9</span>), <span class="type">Lesson</span>(name: <span class="string">"Week 10"</span>, id: <span class="number">10</span>), <span class="type">Lesson</span>(name: <span class="string">"Week 11"</span>, id: <span class="number">11</span>), <span class="type">Lesson</span>(name: <span class="string">"Week 12"</span>, id: <span class="number">12</span>), <span class="type">Lesson</span>(name: <span class="string">"Week 13"</span>, id: <span class="number">13</span>)]  <span class="comment">//fill in lessons</span>
+  }
+}
+
+<span class="comment">/// This extension contains the public query API to find specific lessons.</span>
+<span class="keyword">extension</span> <span class="type">LessonDataManager</span> {
+  <span class="comment">/// - Returns: The `Lesson` with `identifier`, or `nil` if no match is found.</span>
+  <span class="keyword">func</span> lesson(with identifier: <span class="type">Lesson</span>.<span class="type">ID</span>) -&gt; <span class="type">Lesson</span>? {
+    <span class="keyword">return</span> lessons.<span class="call">first</span> { $0.<span class="property">id</span> == identifier }
+  }
+
+  <span class="comment">/// - Returns: An array of `Lesson` structures with the requested `identifiers`.</span>
+  <span class="keyword">func</span> lessons(with identifiers: [<span class="type">Lesson</span>.<span class="type">ID</span>]) -&gt; [<span class="type">Lesson</span>] {
+    <span class="keyword">return</span> lessons.<span class="call">compactMap</span> { lesson <span class="keyword">in
+      return</span> identifiers.<span class="call">contains</span>(lesson.<span class="property">id</span>) ? lesson : <span class="keyword">nil</span>
+    }
+  }
+
+  <span class="comment">/// - Returns: An array of `Lesson` structures that the `predicate` closure returns.</span>
+  <span class="keyword">func</span> lessons(matching predicate: (<span class="type">Lesson</span>) -&gt; <span class="type">Bool</span>) -&gt; [<span class="type">Lesson</span>] {
+    <span class="keyword">return</span> lessons.<span class="call">filter</span>(predicate)
+  }
+}
+</code></pre><p>This is an <code>@Observable</code>, which means when it changes, SwiftUI views can respond to that change and update themselves. I have a quick <code>init</code> here that loads up some dummy data, and then in an extension, I added some helper methods to return <code>Lesson</code> objects that meet certain criteria.<br><br>Whew, that's a lot! But you have to inform the system about your entities, and you've setup the infrastructure to do so. You'll actually add them to the OS later, but before we get to that, let's talk about the <code>AppIntent</code> protocol.</p><p style="float: left">Previous:  <A HREF="../../Week10/01-IntroductionToAppIntents/index.html">Introduction to App Intents</A></p><p style="float: right">Next:  <A HREF="../../Week10/03-TheAppIntentProtocol/index.html">The App Intent Protocol</A></p><BR/><BR/></div><leftside><u><p>Week 10</p></u><div class="weekSection"><ul><li><div class="comment-container"><div class="tocItem"><a id="Week 10 Overview" href="../../Week10/00-Week10Overview/index.html">Week 10 Overview</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to App Intents" href="../../Week10/01-IntroductionToAppIntents/index.html">Introduction to App Intents</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="The App Entity Protocol" href="../../Week10/02-TheAppEntityProtocol/index.html">The App Entity Protocol</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="The App Intent Protocol" href="../../Week10/03-TheAppIntentProtocol/index.html">The App Intent Protocol</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Getting Ready for App Intents" href="../../Week10/04-GettingReadyForAppIntents/index.html">Getting Ready for App Intents</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Using App Intents with Search" href="../../Week10/05-UsingAppIntentsWithSearch/index.html">Using App Intents with Search</a></div></div></li></ul></div></leftside><footer><p>Generated with ❤️ using <a href="https://github.com/johnsundell/publish">Publish</a></p><p>© 2025-2026 Josh Steele (rsteele3@jhu.edu) <a href="mailto:"(rsteele3@jhu.edu)""></a></p><p>Last updated January 16, 2026 at 7:57 PM</p><p><a href="https://mastodon.social/@hococoder" target="_blank">My Mastodon</a> | <a href="https://github.com/hococoder" target="_blank">My GitHub</a> | <a href="https://ep.jhu.edu" target="_blank">Whiting School EPP</a> | <a href="https://canvas.jhu.edu" target="_blank">JHU Canvas</a></p></footer></div></body></html>
