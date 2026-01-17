@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta property="og:site_name" content="Mobile Application Development for the iOS Platform"/><link rel="canonical" href="https://hococoder.com/posts/Week03/07-NSManagedObjects"/><meta name="twitter:url" content="https://hococoder.com/posts/Week03/07-NSManagedObjects"/><meta property="og:url" content="https://hococoder.com/posts/Week03/07-NSManagedObjects"/><title>Week 3 - Making NSManagedObjects | Mobile Application Development for the iOS Platform</title><meta name="twitter:title" content="Week 3 - Making NSManagedObjects | Mobile Application Development for the iOS Platform"/><meta property="og:title" content="Week 3 - Making NSManagedObjects | Mobile Application Development for the iOS Platform"/><meta name="description" content="A description of my first post."/><meta name="twitter:description" content="A description of my first post."/><meta property="og:description" content="A description of my first post."/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="../../../styles.css" type="text/css"/><script src="../../../../jquery-3.7.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/favicon.png" type="image/png"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Mobile Application Development for the iOS Platform"/></head><body><div class="layout"><div class="header"><div class="headerLayout"><div class="title">Mobile Application Development for the iOS Platform</div><div class="subtitle">Engineering Program for Professionals - 605.687 - 2025-2026 Academic Year</div><div class="weeklayout"><a class="grow1" href="/epp_605_687_spring_2026/posts/Intro/About Me">About Me</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Intro/Example App">Example App</a><a class="grow1" href="/epp_605_687_spring_2026//posts//Week00//00-Week00Overview">Week 0</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week01/00-Week01Overview">Week 1</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week02/00-Week02Overview">Week 2</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week03/00-Week03Overview">Week 3</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week04/00-Week04Overview">Week 4</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week05/00-Week05Overview">Week 5</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week06/00-Week06Overview">Week 6</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week07/00-Week07Overview">Week 7</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week08/00-Week08Overview">Week 8</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week09/00-Week09Overview">Week 9</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week10/00-Week10Overview">Week 10</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week11/00-Week11Overview">Week 11</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week12/00-Week12Overview">Week 12</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week13/00-Week13Overview">Week 13</a></div></div></div><div class="wrapper"><h1>Week 3 - Making NSManagedObjects</h1><p style="float: left">Previous:  <A HREF="../../Week03/06-SettingUpASchema/index.html">Setting up a Schema</A></p><p style="float: right">Next:  <A HREF="../../Week03/08-StoringAndFetching/index.html">Storing and Fetching</A></p><BR/><BR/><a name="overview"></a>
+<h2>Overview</h2><div id="floater">
+<h3><u>Page Contents</u></h3>
+<ul><li><a href="#overview">Overview</a></li><li><a href="#declaringNsmanagedobjectsManually">Declaring NSManagedObjects Manually</a></li><li><a href="#lettingXcodeDoTheHardWork">Letting Xcode do the Hard Work</a></li></ul></div><p class="info">This Core Data information is left here for posterity; we will be focusing on using SwiftData from here on out in the class</p><p>There has to be <em>something</em> behind the Schema we discussed in the last module - each entity has to be connected to an underlying class so that it can be compiled and instantiated like any other type in our code. Let's look at a few different ways to make these objects.</p><a name="declaringCodeNsmanagedobjectCodeSManually"></a>
+<h2>Declaring <code>NSManagedObject</code>s Manually</h2><p>In your data model, each entity is represented under the hood by a specific class, which is a child of <code>NSManagedObject</code>. You don’t have to create these classes explicitly - one of the main features of Core Data - but you can if you want to add extra functionality to those classes. All you have to do is choose an entity and select the "Editor -&gt; Create NSManagedObject subclass" menu in Xcode. Xcode will then make a class with a body that looks like the one below. You can then customize this class - but keep in mind if you update the schema, you have to keep this class up to date as well.</p><pre><code><span class="keyword">import</span> CoreData
+
+<span class="keyword">class</span> DBSample: <span class="type">NSManagedObject</span> {
+  
+  <span class="keyword">@NSManaged var</span> name: <span class="type">String</span>
+  <span class="keyword">@NSManaged var</span> amount: <span class="type">String</span>
+  
+}
+</code></pre><p>Keeping track of these classes can be a pain; luckily Core Data and Xcode have built in functionality that does this for us.</p><a name="lettingXcodeDoTheHardWork"></a>
+<h2>Letting Xcode Do the Hard Work</h2><center><iframe id="myIframe" src="https://jh.hosted.panopto.com/Panopto/Pages/Embed.aspx?id=ecb2c051-24dc-472c-b54a-b1b9001c5510&autoplay=false&offerviewer=true&showtitle=true&showbrand=true&captions=false&interactivity=all"  style="border: 1px solid #464646;" allowfullscreen allow="autoplay" aria-label="Panopto Embedded Video Player" aria-description="Week0-04-THIRDPARTYTOOLS-Lecture" ></iframe></center><p>Let's take a look at how Core Data creates class types from the entities you setup in your model, and how you can customize those classes to add extra functionality. If we go over to <code>ContentView.swift</code> and make an instance of <code>Teacher</code> with:</p><pre><code><span class="keyword">let</span> teacher = <span class="type">Teacher</span>()
+</code></pre><p>It compiles! Go ahead and remove it from <code>ContentView.swift</code> so you don't forget later.</p><p>But we don’t have a Teacher class defined in our project… or do we? Let’s go over to the Teacher in the data model editor. You can see in the properties pane that there is a section called Codegen, and currently selected is Class Definition. What does that mean? Well, when Xcode builds a project, it uses space in the DerivedData folder as a scratch space, building a series of intermediate, derived, files in the process, an in our particular case, ones that are generated from the Core Data model. Let’s open a console window and go to the following folder under your home directory:</p><pre><code><span class="type">Library</span>/<span class="type">Developer</span>/<span class="type">Xcode</span>/<span class="type">DerivedData</span> 
+</code></pre><p>Doing a file listing, I see the different apps I have derived data for, and I can go to our EPGradeBook app. Navigate down to the following folder:</p><pre><code><span class="type">Build</span>/<span class="type">Intermediates</span>.<span class="property">noindex</span>/<span class="type">EPGradeBook</span>.<span class="property">build</span>/<span class="type">Debug</span>-iphonesimulator/<span class="type">EPGradeBook</span>.<span class="property">build</span>/<span class="type">DerivedSources</span>/<span class="type">CoreDataGenerated</span>/<span class="type">EPGradeBook</span>
+</code></pre><p>Within that folder, you can see a series of Swift files that were automatically generated by the build system, based on the information in the core data model. Using the <code>more</code> command on the <code>Assignment+CoreDataClass.swift</code> file in the terminal, and you can see that the <code>Assignment</code> class declaration is here, and it extends the <code>NSManagedObject</code> class.</p><pre><code><span class="comment">//
+//  Assignment+CoreDataClass.swift
+//
+//
+//  Created by Teacher on 2/6/21.
+//
+//  This file was automatically generated and should not be edited.
+//</span>
+
+<span class="keyword">import</span> Foundation
+<span class="keyword">import</span> CoreData
+
+<span class="keyword">@objc</span>(<span class="type">Assignment</span>)
+<span class="keyword">public class</span> Assignment: <span class="type">NSManagedObject</span> {
+
+}
+</code></pre><p>The other file - Assignment+CoreDataProperties.swift is a little more exciting. It has the attributes we assigned - even an <code>NSSet</code> to represent the grades collection - along with some helper methods to fetch all of the <code>Assignment</code> entries, as well as add grades to or delete grades from the assignment.</p><pre><code><span class="comment">//
+//  Assignment+CoreDataProperties.swift
+//
+//
+//  Created by Teacher on 2/6/21.
+//
+//  This file was automatically generated and should not be edited.
+//</span>
+
+<span class="keyword">import</span> Foundation
+<span class="keyword">import</span> CoreData
+
+
+<span class="keyword">extension</span> <span class="type">Assignment</span> {
+
+    <span class="keyword">@nonobjc public class func</span> fetchRequest() -&gt; <span class="type">NSFetchRequest</span>&lt;<span class="type">Assignment</span>&gt; {
+        <span class="keyword">return</span> <span class="type">NSFetchRequest</span>&lt;<span class="type">Assignment</span>&gt;(entityName: <span class="string">"Assignment"</span>)
+    }
+
+    <span class="keyword">@NSManaged public var</span> assignmentDescription: <span class="type">String</span>?
+    <span class="keyword">@NSManaged public var</span> assignmentType: <span class="type">String</span>?
+    <span class="keyword">@NSManaged public var</span> averageRating: <span class="type">Double</span>
+    <span class="keyword">@NSManaged public var</span> dueDate: <span class="type">Date</span>?
+    <span class="keyword">@NSManaged public var</span> id: <span class="type">UUID</span>?
+    <span class="keyword">@NSManaged public var</span> maxGrade: <span class="type">Double</span>
+    <span class="keyword">@NSManaged public var</span> name: <span class="type">String</span>?
+    <span class="keyword">@NSManaged public var</span> releaseDate: <span class="type">Date</span>?
+    <span class="keyword">@NSManaged public var</span> grades: <span class="type">NSSet</span>?
+
+}
+
+<span class="comment">// MARK: Generated accessors for grades</span>
+<span class="keyword">extension</span> <span class="type">Assignment</span> {
+
+    <span class="keyword">@objc</span>(addGradesObject:)
+    <span class="keyword">@NSManaged public func</span> addToGrades(<span class="keyword">_</span> value: <span class="type">AssignmentGrade</span>)
+
+    <span class="keyword">@objc</span>(removeGradesObject:)
+    <span class="keyword">@NSManaged public func</span> removeFromGrades(<span class="keyword">_</span> value: <span class="type">AssignmentGrade</span>)
+
+    <span class="keyword">@objc</span>(addGrades:)
+    <span class="keyword">@NSManaged public func</span> addToGrades(<span class="keyword">_</span> values: <span class="type">NSSet</span>)
+
+    <span class="keyword">@objc</span>(removeGrades:)
+    <span class="keyword">@NSManaged public func</span> removeFromGrades(<span class="keyword">_</span> values: <span class="type">NSSet</span>)
+
+}
+
+<span class="keyword">extension</span> <span class="type">Assignment</span> : <span class="type">Identifiable</span> {
+
+}
+</code></pre><p>You’ll notice both of these files have a comment saying that they are autogenerated and shouldn’t be edited - and indeed, these files are managed and re-derived by the build system when you make changes. So how do you customize the <code>Assignment</code> class if you want to add other functionality? Well, you can use the same technique that the <code>Assignment+CoreDataProperties</code> file used - an extension. Let’s make a new file called <code>Assignment+Extension</code> in the project, and in it, setup an extension for the <code>Assignment</code> class, and define a method to calculate the average of the assignment’s grades.</p><pre><code><span class="keyword">extension</span> <span class="type">Assignment</span> {
+  
+  <span class="keyword">func</span> averageGrade() -&gt; <span class="type">Double</span> {
+    
+    <span class="keyword">guard let</span> grades = grades?.<span class="property">allObjects</span> <span class="keyword">as</span>? [<span class="type">AssignmentGrade</span>] <span class="keyword">else</span> { <span class="keyword">return</span> <span class="number">0</span> }
+    <span class="keyword">guard</span> grades.<span class="property">count</span> &gt; <span class="number">0</span> <span class="keyword">else</span> { <span class="keyword">return</span> <span class="number">0</span> }
+    <span class="keyword">return</span> grades.<span class="call">reduce</span>(<span class="number">0</span>, { $0 + $1.<span class="property">grade</span> })/<span class="type">Double</span>(grades.<span class="property">count</span>)
+  }
+  
+}
+</code></pre><p>There are other ways to customize your Core Data class. Earlier, I mentioned using the "Editor-&gt; Create NSManagedObject subclass" menu item. If you want to do this, you can select the Manual/None choice from the CodeGen drop down. If you want the build system to only manage the <code>+CoreDataProperties</code> extension, you can choose Category/Extension - but if you do that you’ll be responsible for creating the equivalent of the <code>Assignment+CoreDataClass</code> where the <code>Assignment</code> class was defined as a subclass of <code>NSManagedObject</code>.</p><p>Next, you'll learn how you can start to integrate these concepts into your project.</p><p style="float: left">Previous:  <A HREF="../../Week03/06-SettingUpASchema/index.html">Setting up a Schema</A></p><p style="float: right">Next:  <A HREF="../../Week03/08-StoringAndFetching/index.html">Storing and Fetching</A></p><BR/><BR/></div><leftside><u><p>Week 3</p></u><div class="weekSection"><ul><li><div class="comment-container"><div class="tocItem"><a id="Week 3 Overview" href="../../Week03/00-Week3Overview/index.html">Week 3 Overview</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Your Apps Directory Structure" href="../../Week03/01-YourAppsDirectoryStructure/index.html">Your Apps Directory Structure</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to User Defaults" href="../../Week03/02-IntroductionToUserDefaults/index.html">Introduction to User Defaults</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to the Codable Protocol" href="../../Week03/03-IntroductionToTheCodableProtocol/index.html">Introduction to the Codable Protocol</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to SwiftData" href="../../Week03/04-IntroductionToSwiftData/index.html">Introduction to SwiftData</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to CoreData" href="../../Week03/05-IntroductionToCoreData/index.html">Introduction to CoreData</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Setting up a Schema" href="../../Week03/06-SettingUpASchema/index.html">Setting up a Schema</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="NSManagedObjects" href="../../Week03/07-NSManagedObjects/index.html">NSManagedObjects</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Storing and Fetching" href="../../Week03/08-StoringAndFetching/index.html">Storing and Fetching</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Populating the Database" href="../../Week03/09-PopulatingTheDatabase/index.html">Populating the Database</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="SwiftUI Improvements" href="../../Week03/10-SwiftUIImprovements/index.html">SwiftUI Improvements</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Converting to SwiftData" href="../../Week03/11-ConvertingToSwiftData/index.html">Converting to SwiftData</a></div></div></li></ul></div></leftside><footer><p>Generated with ❤️ using <a href="https://github.com/johnsundell/publish">Publish</a></p><p>© 2025-2026 Josh Steele (rsteele3@jhu.edu) <a href="mailto:"(rsteele3@jhu.edu)""></a></p><p>Last updated January 16, 2026 at 9:56 PM</p><p><a href="https://mastodon.social/@hococoder" target="_blank">My Mastodon</a> | <a href="https://github.com/hococoder" target="_blank">My GitHub</a> | <a href="https://ep.jhu.edu" target="_blank">Whiting School EPP</a> | <a href="https://canvas.jhu.edu" target="_blank">JHU Canvas</a></p></footer></div></body></html>

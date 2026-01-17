@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta property="og:site_name" content="Mobile Application Development for the iOS Platform"/><link rel="canonical" href="https://hococoder.com/posts/Week04/05-AsyncAwait"/><meta name="twitter:url" content="https://hococoder.com/posts/Week04/05-AsyncAwait"/><meta property="og:url" content="https://hococoder.com/posts/Week04/05-AsyncAwait"/><title>Week 4 - Async/Await | Mobile Application Development for the iOS Platform</title><meta name="twitter:title" content="Week 4 - Async/Await | Mobile Application Development for the iOS Platform"/><meta property="og:title" content="Week 4 - Async/Await | Mobile Application Development for the iOS Platform"/><meta name="description" content="A description of my first post."/><meta name="twitter:description" content="A description of my first post."/><meta property="og:description" content="A description of my first post."/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="../../../styles.css" type="text/css"/><script src="../../../../jquery-3.7.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/favicon.png" type="image/png"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Mobile Application Development for the iOS Platform"/></head><body><div class="layout"><div class="header"><div class="headerLayout"><div class="title">Mobile Application Development for the iOS Platform</div><div class="subtitle">Engineering Program for Professionals - 605.687 - 2025-2026 Academic Year</div><div class="weeklayout"><a class="grow1" href="/epp_605_687_spring_2026/posts/Intro/About Me">About Me</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Intro/Example App">Example App</a><a class="grow1" href="/epp_605_687_spring_2026//posts//Week00//00-Week00Overview">Week 0</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week01/00-Week01Overview">Week 1</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week02/00-Week02Overview">Week 2</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week03/00-Week03Overview">Week 3</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week04/00-Week04Overview">Week 4</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week05/00-Week05Overview">Week 5</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week06/00-Week06Overview">Week 6</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week07/00-Week07Overview">Week 7</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week08/00-Week08Overview">Week 8</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week09/00-Week09Overview">Week 9</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week10/00-Week10Overview">Week 10</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week11/00-Week11Overview">Week 11</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week12/00-Week12Overview">Week 12</a><a class="grow1" href="/epp_605_687_spring_2026/posts/Week13/00-Week13Overview">Week 13</a></div></div></div><div class="wrapper"><h1>Week 4 - Async/Await</h1><p style="float: left">Previous:  <A HREF="../../Week04/04-NetworkingExample/index.html">Networking Example</A></p><p style="float: right">Next:  <A HREF="../../Week04/07-IntroductionToCloudKit/index.html">Introduction to CloudKit</A></p><BR/><BR/><center>
+<p class="suggestedReading">
+Suggested Reading: <BR/>
+<A HREF="https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html">Swift Concurrency</A><BR/>
+</p>
+</center><div id="floater">
+<h3><u>Page Contents</u></h3>
+<ul><li><a href="#overview">Overview</a></li><li><a href="#spaghettiCode">Spaghetti Code</a></li><li><a href="#usingAsyncAwait">Using Async/Await</a></li><li><a href="#callingParallelAsyncFunctions">Calling Parallel `async` functions</a></li><li><a href="#actors">Actors</a></li><li><a href="#mainactor">@MainActor</a></li><li><a href="#conclusion">Conclusion</a></li></ul></div><a name="overview"></a>
+<h2>Overview</h2><p>The examples we've seen for dealing with networking, for example, have been pretty straightforward, and not overly complex. But when you read them from top to bottom, the flow of the logic is sometimes hard to follow. Async/await can help straighten out the code and make things easier to read and maintain.</p><a name="spaghettiCode"></a>
+<h2>Spaghetti Code</h2><p>For example, look at this block of code:</p><pre><code><span class="keyword">enum</span> DownloadError: <span class="type">Error</span> {
+  <span class="keyword">case</span> imageToData
+  <span class="keyword">case</span> downloadError
+  <span class="keyword">case</span> badURL
+}
+
+<span class="comment">//2</span>
+<span class="keyword">func</span> getProfilePicture(for name: <span class="type">String</span>, completion: <span class="keyword">@escaping</span> (<span class="type">UIImage</span>?, <span class="type">Error</span>?) -&gt; ()) {
+    <span class="keyword">let</span> sharedSession = <span class="type">URLSession</span>.<span class="property">shared</span>
+    sharedSession.<span class="property">configuration</span>.<span class="property">allowsCellularAccess</span> = <span class="keyword">false
+    let</span> defaultConfiguration = <span class="type">URLSessionConfiguration</span>.<span class="property">default</span>
+    <span class="keyword">let</span> defaultSession = <span class="type">URLSession</span>(configuration: defaultConfiguration)
+
+    <span class="keyword">guard let</span> url = <span class="type">URL</span>(string: <span class="string">"http://159.203.191.136/</span>\(name)<span class="string">.png"</span>) <span class="keyword">else</span> {
+      <span class="comment">//3</span>
+      <span class="call">completion</span>(<span class="keyword">nil</span>, <span class="type">DownloadError</span>.<span class="property">badURL</span>)
+      <span class="call">fatalError</span>()
+    }
+
+    <span class="comment">//4</span>
+    <span class="keyword">let</span> task = defaultSession.<span class="call">dataTask</span>(with: url) { data, response, error <span class="keyword">in</span>
+
+      <span class="comment">//first, check the http response code to make sure we got an OK (200-299) response
+      //5</span>
+      <span class="keyword">guard let</span> httpResponse = response <span class="keyword">as</span>? <span class="type">HTTPURLResponse</span>,
+        (<span class="number">200</span>..&lt;<span class="number">300</span>).<span class="call">contains</span>(httpResponse.<span class="property">statusCode</span>) <span class="keyword">else</span> {
+          <span class="call">completion</span>(<span class="keyword">nil</span>, <span class="type">DownloadError</span>.<span class="property">downloadError</span>)
+          <span class="keyword">return</span>
+      }
+
+       <span class="comment">//then check to make sure the data is not nil</span>
+       <span class="keyword">guard let</span> data = data <span class="keyword">else</span> {
+         <span class="keyword">return</span>
+       }
+
+      <span class="comment">//finally grab the data and build an image from it
+      //6</span>
+      <span class="keyword">if let</span> result = <span class="type">UIImage</span>(data: data) {
+        <span class="call">print</span>(<span class="string">"Downloaded the image!"</span>)
+        <span class="call">completion</span>(result, <span class="keyword">nil</span>)
+      }
+      <span class="keyword">else</span> {
+        <span class="call">completion</span>(<span class="keyword">nil</span>, <span class="type">DownloadError</span>.<span class="property">imageToData</span>)
+      }
+   }
+   <span class="comment">//7</span>
+   task.<span class="call">resume</span>()
+}
+
+<span class="keyword">var</span> myImage: <span class="type">UIImage</span>?
+
+<span class="comment">//1</span>
+<span class="call">getProfilePicture</span>(for: <span class="string">"Josh"</span>, completion: { image, error <span class="keyword">in</span>
+
+  <span class="comment">//8</span> 
+  <span class="keyword">guard</span> error != <span class="keyword">nil else</span> { <span class="keyword">return</span> }
+  <span class="call">print</span>(<span class="string">"image is</span> \(image)<span class="string">"</span>)
+  myImage = image
+
+})
+
+</code></pre><p>Let's try to walk through these code in order, and identify some problems. The numbers listed below match the commented numbers above:</p><ol><li>Here is where the method <code>getProfilePicture</code> is called. It includes a completion block, whose code is called somewhere in the body of <code>getProfilePicture</code></li><li>Speaking of which, this is the function signature of <code>getProfilePicture</code>. It takes in 2 arguments: the name of the person, and a closure which is invoked in the body. That completion block takes in 2 arguments - an optional UIImage and an optional Error, and returns Void.</li><li>Here is the first of many "outlets", or places where the control flow can leave this function. If the URL can't be properly constructed, the completion block is called with a nil image and an error.</li><li>Here is the meat of this function - the actually call to reach out to the network and fetch the data at the specified URL. Since this is asynchronous (we don't know how long it will take to finish), we have to handle it with yet another completion handler that is called by the system when the data - or an error - is returned.</li><li>Here is another potential outlet - if the response code is not in the correct range, the completion is again thrown with an error.</li><li>The conversion of the data to a <code>UIImage</code> is another outlet, which can either return the created image, or a <code>DownloadError</code>.</li><li>The <code>dataTask</code> has to be resumed for it to start.</li><li>Inside the original completion block, the error is checked, and if things are good, the image is set to an external variable.</li></ol><p>Whew. That was a long and winding road. Wouldn't it be great if we could just tell the OS what to wait for, and let it handle all the special cases for us? Let's see how async/await helps us do that.</p><a name="usingAsyncAwait"></a>
+<h2>Using Async/Await</h2><p>In iOS 15, 2 new keywords were added - <code>async</code> and <code>await</code>:</p><ul><li><code>async</code> is used to tell the system that a function or block of code is asynchronous, and can be spawned off to another thread.</li><li><code>await</code> is used to tell the system that the current thread should wait here until all of the <code>async</code> components have returned.</li></ul><p>Let's build a new function with <code>async</code> and <code>await</code> to try to not only reduce the amount of code we use, but make the code easier to read as we read down the page.</p><p>Start by declaring the function signature (see the EPExampleApp page for this section to see this code in a playground):</p><pre><code><span class="keyword">func</span> getAsyncProfilePicture(for name: <span class="type">String</span>) <span class="keyword">async throws</span> -&gt; <span class="type">UIImage</span>? {
+</code></pre><p>This function signature is simplified - only taking in the name for arguments, and returns an optional <code>UIImage</code>. It has two additional keywords that the previous function did not have <code>async</code> and <code>throws</code>. <code>throws</code> is one we're familiar with; it means this function - specifically something in the body - may throw an exception. We haven't seen <code>async</code> however - this indicates to the compiler that this function will contain code segments that themselves will be <code>async</code>, and will be handed off to background threads to perform their work.</p><p>Next is the set of code that sets up the <code>URLSession</code>, just like in the previous function:</p><pre><code>  <span class="keyword">let</span> defaultConfiguration = <span class="type">URLSessionConfiguration</span>.<span class="property">default</span>
+ <span class="keyword">let</span> defaultSession = <span class="type">URLSession</span>(configuration: defaultConfiguration)
+</code></pre><p>Next, there is a mostly unchanged declaration of the <code>url</code> property, except the <code>else</code> clause no longer calls the completion handler - it just throws an error:</p><pre><code>  <span class="keyword">guard let</span> url = <span class="type">URL</span>(string: <span class="string">"http://159.203.191.136/</span>\(name)<span class="string">.png"</span>) <span class="keyword">else</span> {
+    <span class="keyword">throw</span> <span class="type">DownloadError</span>.<span class="property">badURL</span>
+  }
+</code></pre><p>Then, let's make a <code>URLRequest</code> with the given <code>url</code>, which at this point we know was successful since the error wasn't thrown:</p><pre><code>  <span class="keyword">let</span> request = <span class="type">URLRequest</span>(url: url)
+</code></pre><p>Now, let's use a new (to iOS 15) function on the <code>defaultSession</code> property called <code>.data(for:)</code>:</p><pre><code>  <span class="keyword">let</span> (data, response) = <span class="keyword">try await</span> defaultSession.<span class="call">data</span>(for: request)
+</code></pre><p>This takes in the <code>request</code> we made above, and asynchronously calls it. Therefore we <code>await</code> for it to finish; also, since it can throw an error, we have to call <code>try</code>, so we actually end up calling <code>try await</code>. This function returns a tuple - the <code>data</code> and the <code>response</code>. Notice how there is no error returned here, like there was in the other function's completion block (item 4 in the above function)? This is because if an error is encountered, it is simply thrown, leaving us with actual workable values - the <code>data</code> and <code>response</code>. No messy closures to deal with!</p><p>Next examine the response as we did before, but if a failure case is met, simply throw the error:</p><pre><code>  <span class="keyword">guard let</span> httpResponse = response <span class="keyword">as</span>? <span class="type">HTTPURLResponse</span>,
+    (<span class="number">200</span>..&lt;<span class="number">300</span>).<span class="call">contains</span>(httpResponse.<span class="property">statusCode</span>) <span class="keyword">else</span> {
+      <span class="keyword">throw</span> <span class="type">DownloadError</span>.<span class="property">downloadError</span>
+  }
+</code></pre><p>Finally, make the image from the data, and remove it:</p><pre><code>  <span class="keyword">let</span> result = <span class="type">UIImage</span>(data: data)
+
+  <span class="keyword">return</span> result
+}
+</code></pre><p>Here's the final version of the code:</p><pre><code><span class="keyword">func</span> getAsyncProfilePicture(for name: <span class="type">String</span>) <span class="keyword">async throws</span> -&gt; <span class="type">UIImage</span>? {
+
+  <span class="keyword">let</span> defaultConfiguration = <span class="type">URLSessionConfiguration</span>.<span class="property">default</span>
+  <span class="keyword">let</span> defaultSession = <span class="type">URLSession</span>(configuration: defaultConfiguration)
+
+  <span class="keyword">guard let</span> url = <span class="type">URL</span>(string: <span class="string">"http://159.203.191.136/</span>\(name)<span class="string">.png"</span>) <span class="keyword">else</span> {
+    <span class="keyword">throw</span> <span class="type">DownloadError</span>.<span class="property">badURL</span>
+  }
+
+  <span class="keyword">let</span> request = <span class="type">URLRequest</span>(url: url)
+
+  <span class="keyword">let</span> (data, response) = <span class="keyword">try await</span> defaultSession.<span class="call">data</span>(for: request)
+
+  <span class="keyword">guard let</span> httpResponse = response <span class="keyword">as</span>? <span class="type">HTTPURLResponse</span>,
+    (<span class="number">200</span>..&lt;<span class="number">300</span>).<span class="call">contains</span>(httpResponse.<span class="property">statusCode</span>) <span class="keyword">else</span> {
+      <span class="keyword">throw</span> <span class="type">DownloadError</span>.<span class="property">downloadError</span>
+  }
+
+  <span class="keyword">let</span> result = <span class="type">UIImage</span>(data: data)
+
+  <span class="keyword">return</span> result
+}
+</code></pre><p>This time around, we can actually read the function from top to bottom to see how the control flows. The Session is setup, the url is created, the request is made, the data is fetched, the response is checked, the image is made and returned. SO much easier!</p><p>But wait, how do we call this? <code>getAsyncProfilePicture</code> is <code>async</code>, which means it must be called from an <code>async</code> environment. Luckily, there is a new wrapper called <code>Task</code> that sets up an environment that can call <code>async</code> functions. For example:</p><pre><code><span class="type">Task</span> {
+  <span class="keyword">let</span> asyncImage = <span class="keyword">try await</span> <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"Josh"</span>)
+  asyncImage
+}
+</code></pre><p>This block in your playground will run the function on a background thread, <code>await</code> for it to finish, and return the image, unless of course an error gets thrown (which you should handle with a do/catch). It will then display the image in the sidebar of the playground.</p><p>An alternative way to do this in SwiftUI is to use the <code>.task()</code> modifier. This is useful for loading initial data for your view, as the modifier is triggered when a view is show on screen (similar to <code>onAppear()</code>), and is cancelled when the view disappears from the screen:</p><pre><code>.<span class="call">task</span> {
+  <span class="keyword">do</span> {
+    <span class="keyword">try await</span> <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"Josh"</span>)
+  } <span class="keyword">catch</span> {
+    <span class="call">print</span>(<span class="string">"Error running the background task</span> \(error)<span class="string">"</span>)
+  }
+}
+</code></pre><a name="callingParallelCodeAsyncCodeFunctions"></a>
+<h2>Calling Parallel <code>async</code> functions</h2><p>The <code>async</code>/<code>await</code> functionality here plays on top of threads, but you don't use them directly. You can, however, think in a thread frame of mind when designing your code. For example. Let's say you wanted to download several profile pictures. Instead of downloading them serially, you want to use threads to download each one without having to wait for the others to finish. You might do it like this:</p><pre><code><span class="keyword">let</span> profilePic1 = <span class="keyword">await</span> <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"Josh"</span>)
+<span class="keyword">let</span> profilePic2 = <span class="keyword">await</span> <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"John"</span>)
+<span class="keyword">let</span> profilePic3 = <span class="keyword">await</span> <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"Donna"</span>)
+</code></pre><p>This would work, but because you used <code>await</code>, this would still happen in series - the current thread would reach a potential pause point at each instance of <code>await</code>. Instead, declare the property as an <code>async</code> property, which will spawn each function call to its own background thread, and the <code>await</code> call below it:</p><pre><code><span class="keyword">async let</span> profilePic1 = <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"Josh"</span>)
+<span class="keyword">async let</span> profilePic2 = <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"John"</span>)
+<span class="keyword">async let</span> profilePic3 = <span class="call">getAsyncProfilePicture</span>(for: <span class="string">"Donna"</span>)
+
+<span class="keyword">let</span> allProfilePics = <span class="keyword">await</span> [profilePic1, profilePic2, profilePic3]
+</code></pre><a name="conclusion"></a>
+<h2>Conclusion</h2><p><code>async</code>, <code>await</code>, and <code>Task</code> (along with <code>.task()</code>) are already greatly changing how iOS developers deal with background processes and updating their UI elements to keep them in sync. This, along with the <code>actor</code> type you learned about in week 1 really allows developers to run threaded processes with data safety.</p><p style="float: left">Previous:  <A HREF="../../Week04/04-NetworkingExample/index.html">Networking Example</A></p><p style="float: right">Next:  <A HREF="../../Week04/07-IntroductionToCloudKit/index.html">Introduction to CloudKit</A></p><BR/><BR/></div><leftside><u><p>Week 4</p></u><div class="weekSection"><ul><li><div class="comment-container"><div class="tocItem"><a id="Week 04 Overview" href="../../Week04/00-Week04Overview/index.html">Week 04 Overview</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to Networking" href="../../Week04/01-IntroductionToNetworking/index.html">Introduction to Networking</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="URL Session Delegate" href="../../Week04/02-URLSessionDelegate/index.html">URL Session Delegate</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Networking Best Practices" href="../../Week04/03-NetworkingBestPractices/index.html">Networking Best Practices</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Networking Example" href="../../Week04/04-NetworkingExample/index.html">Networking Example</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Async Await" href="../../Week04/05-AsyncAwait/index.html">Async Await</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to CloudKit" href="../../Week04/07-IntroductionToCloudKit/index.html">Introduction to CloudKit</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Setting Up CloudKit" href="../../Week04/08-SettingUpCloudKit/index.html">Setting Up CloudKit</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="CloudKit Schemas" href="../../Week04/09-CloudKitSchemas/index.html">CloudKit Schemas</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="CloudKit Features" href="../../Week04/10-CloudKitFeatures/index.html">CloudKit Features</a></div><div class="chain chain-bottom"></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Updating Your App For CloudKit" href="../../Week04/11-UpdatingYourAppForCloudKit/index.html">Updating Your App For CloudKit</a></div></div></li><li><div class="comment-container"><div class="chain chain-top"></div><div class="tocItem"><a id="Introduction to Swift Package Manager" href="../../Week04/12-IntroductionToSwiftPackageManager/index.html">Introduction to Swift Package Manager</a></div></div></li></ul></div></leftside><footer><p>Generated with ❤️ using <a href="https://github.com/johnsundell/publish">Publish</a></p><p>© 2025-2026 Josh Steele (rsteele3@jhu.edu) <a href="mailto:"(rsteele3@jhu.edu)""></a></p><p>Last updated January 16, 2026 at 9:56 PM</p><p><a href="https://mastodon.social/@hococoder" target="_blank">My Mastodon</a> | <a href="https://github.com/hococoder" target="_blank">My GitHub</a> | <a href="https://ep.jhu.edu" target="_blank">Whiting School EPP</a> | <a href="https://canvas.jhu.edu" target="_blank">JHU Canvas</a></p></footer></div></body></html>
