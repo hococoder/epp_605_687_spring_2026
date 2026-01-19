@@ -527,6 +527,7 @@ body .layout .wrapper pre {
 .wrapper h2 {
   margin: 20px 300px 0px 300px;
   background-color: #0067ac;
+  border-radius: 8px;
 }
 
 @media (max-width: 2560px) {
