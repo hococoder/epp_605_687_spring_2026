@@ -455,7 +455,7 @@ footer {
 .wrapper {
     max-width: calc(100vw - 300px);
     margin-left: 35px;
-    margin-right: auto;
+    margin-right: 35px;
     padding: 40px 0px 40px 0px;
     text-align: left;
 }
