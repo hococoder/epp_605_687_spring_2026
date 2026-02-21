@@ -31,6 +31,7 @@ h2 {
 
 h3 {
     margin: 20px 0;
+    color: #000000;
 }
 
 p {
@@ -543,10 +544,12 @@ body .layout .wrapper pre {
   }
 }
 
+/*
 .wrapper h3 u {
   padding: 0px 300px 0px 300px;
   color: #000000;
 }
+*/
 
 .wrapper h3 {
   /*padding: 0px 300px 0px 300px;*/
