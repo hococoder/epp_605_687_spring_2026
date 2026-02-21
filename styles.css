@@ -31,7 +31,6 @@ h2 {
 
 h3 {
     margin: 20px 0;
-    color: #000000;
 }
 
 p {
@@ -377,6 +376,13 @@ leftSideEmpty {
 }
 
 #floater h3 {
+  background-color: #fff;
+  color: #000;
+  margin-bottom: 5px;
+  padding: 0px 0px 0px 0px;
+}
+
+#floater h3 u {
   background-color: #fff;
   color: #000;
   margin-bottom: 5px;
