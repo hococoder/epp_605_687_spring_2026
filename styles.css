@@ -543,6 +543,10 @@ body .layout .wrapper pre {
   }
 }
 
+.wrapper h3 u{
+  padding: 0px 300px 0px 300px;
+}
+
 .wrapper h3 {
   /*padding: 0px 300px 0px 300px;*/
   margin: 20px 700px 0px 300px;
