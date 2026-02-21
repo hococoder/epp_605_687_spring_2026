@@ -544,7 +544,11 @@ body .layout .wrapper pre {
 }
 
 .wrapper h3 {
-  padding: 0px 300px 0px 300px;
+  /*padding: 0px 300px 0px 300px;*/
+  margin: 20px 500px 0px 300px;
+  background-color: #0067ac;
+  border-radius: 8px;
+  padding-left: 10px;
 }
 
 @media (max-width: 2560px) {
